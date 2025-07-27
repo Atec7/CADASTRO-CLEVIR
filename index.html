@@ -667,4 +667,121 @@
       alert('Não há produtos cadastrados.');
       return;
     }
-  
+    pedidoArea.style.display = 'block';
+    btnMontarPedido.disabled = true;
+  });
+
+  btnCancelarPedido.addEventListener('click', () => {
+    pedidoArea.style.display = 'none';
+    pedido = [];
+    atualizarListaPedido();
+    btnMontarPedido.disabled = false;
+  });
+
+  btnFinalizarPedido.addEventListener('click', async () => {
+    if (pedido.length === 0) {
+      alert('Adicione produtos ao pedido.');
+      return;
+    }
+
+    try {
+      // Atualiza o estoque no banco subtraindo a quantidade do pedido
+      for (const item of pedido) {
+        const p = produtos[item.id];
+        if (p.estoque < item.quantidade) {
+          alert(`Estoque insuficiente para ${p.nome}. Estoque atual: ${p.estoque}`);
+          return;
+        }
+      }
+
+      for (const item of pedido) {
+        const p = produtos[item.id];
+        await atualizarEstoque(item.id, p.estoque - item.quantidade);
+      }
+
+      alert('Pedido finalizado e estoque atualizado!');
+      pedidoArea.style.display = 'none';
+      pedido = [];
+      atualizarListaPedido();
+      btnMontarPedido.disabled = false;
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao finalizar pedido.');
+    }
+  });
+
+  // Registrar Venda (formulário de vendas)
+  vendaForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    vendaMessage.textContent = '';
+    vendaMessage.className = '';
+
+    const produtoId = vendaProdutoSelect.value;
+    const quantidade = parseInt(vendaQuantidadeInput.value);
+
+    if (!produtoId) {
+      vendaMessage.textContent = 'Selecione um produto.';
+      vendaMessage.className = 'error';
+      return;
+    }
+    if (isNaN(quantidade) || quantidade < 1) {
+      vendaMessage.textContent = 'Informe uma quantidade válida.';
+      vendaMessage.className = 'error';
+      return;
+    }
+
+    const produto = produtos[produtoId];
+    if (!produto) {
+      vendaMessage.textContent = 'Produto não encontrado.';
+      vendaMessage.className = 'error';
+      return;
+    }
+
+    if (quantidade > produto.estoque) {
+      vendaMessage.textContent = `Estoque insuficiente. Estoque atual: ${produto.estoque}`;
+      vendaMessage.className = 'error';
+      return;
+    }
+
+    try {
+      // Atualizar estoque
+      await atualizarEstoque(produtoId, produto.estoque - quantidade);
+      // Atualizar total vendas
+      await aumentarTotalVendas(produtoId, quantidade);
+
+      vendaMessage.textContent = `Venda registrada com sucesso!`;
+      vendaMessage.className = 'success';
+      vendaForm.reset();
+      vendaQuantidadeInput.value = 1;
+    } catch (err) {
+      console.error(err);
+      vendaMessage.textContent = 'Erro ao registrar venda.';
+      vendaMessage.className = 'error';
+    }
+  });
+
+  // Escuta os produtos no banco e atualiza a UI
+  const produtosRef = ref(database, 'produtos');
+  onValue(produtosRef, snapshot => {
+    produtos = snapshot.val() || {};
+    renderProdutos(searchInput.value);
+    atualizarDashboard();
+  });
+document.addEventListener('click', function (e) {
+  const imagemClicada = e.target.closest('.produto-imagem');
+  const modal = document.getElementById('imagem-modal');
+  const modalImg = modal?.querySelector('img');
+
+  if (imagemClicada) {
+    modal.style.display = 'flex';
+    modalImg.src = imagemClicada.src;
+  } else if (e.target === modal || e.target === modalImg) {
+    modal.style.display = 'none';
+    modalImg.src = '';
+  }
+});
+
+</script>
+
+</body>
+</html>
