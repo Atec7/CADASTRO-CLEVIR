@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gerenciamento - Clevir Moda Íntima</title>
+
+<!-- FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+<style>
+  /* Reset simples */
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Open Sans', sans-serif;
+    background-color: #4b0c0c;
+    color: #f0f0f0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    background-color: #5c1515;
+    padding: 20px;
+    text-align: center;
+    font-family: 'Cinzel', serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: gold;
+    user-select: none;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.7);
+  }
+
+  main {
+    flex: 1;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* Layout grid */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+  }
+  @media(max-width: 900px) {
+    .grid-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Formulário e painel */
+  form, section {
+    background-color: #5c1515;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 15px #b30000aa;
+  }
+
+  h2 {
+    margin-top: 0;
+    color: gold;
+    margin-bottom: 15px;
+    font-family: 'Cinzel', serif;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  input, textarea, select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    font-size: 16px;
+    margin-bottom: 15px;
+    background-color: #3a0000;
+    color: white;
+  }
+  textarea {
+    resize: vertical;
+  }
+
+  button {
+    background-color: gold;
+    border: none;
+    color: #4b0c0c;
+    font-weight: 700;
+    font-size: 18px;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%;
+  }
+  button:hover {
+    background-color: #d4af37cc;
+  }
+  button:disabled {
+    background-color: #7a000055;
+    cursor: not-allowed;
+  }
+
+  /* Mensagem status */
+  #message, #venda-message {
+    text-align: center;
+    margin-top: 15px;
+    font-weight: 700;
+  }
+  #message.success, #venda-message.success {
+    color: #7fff7f;
+  }
+  #message.error, #venda-message.error {
+    color: #ff7f7f;
+  }
+
+  /* Tabela produtos */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #3a0000;
+    color: white;
+  }
+  th, td {
+    padding: 10px 8px;
+    border-bottom: 1px solid #b30000;
+    text-align: left;
+  }
+  th {
+    background-color: #b30000;
+  }
+
+  /* Cores para estoque */
+  .estoque-baixo {
+    background-color: #ff4c4caa;
+    color: white;
+    font-weight: 700;
+  }
+  .estoque-ok {
+    background-color: #4caf50aa;
+  }
+
+  /* Área pedido */
+  #pedido-produtos-list li {
+    list-style: none;
+    background: #7a0000cc;
+    margin: 8px 0;
+    padding: 8px 10px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  #pedido-produtos-list li span {
+    flex: 1;
+  }
+  #pedido-produtos-list li button {
+    background: #ff4c4c;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    color: white;
+    cursor: pointer;
+  }
+  #pedido-produtos-list li button:hover {
+    background: #d13535;
+  }
+
+  /* Filtros */
+  #search-bar {
+    margin-bottom: 20px;
+    max-width: 400px;
+  }
+  #search-bar input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    background-color: #3a0000;
+    color: white;
+  }
+
+  /* Margem lucro */
+  .margem-baixa {
+    color: #ffb347;
+    font-weight: 700;
+  }
+
+  /* Imagens miniaturas */
+  .thumbs {
+    display: flex;
+    gap: 6px;
+  }
+  .thumbs img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .thumbs img:hover {
+    border-color: gold;
+  }
+
+  /* Botões editar e excluir */
+  .btn-small {
+    background: #b30000;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    padding: 6px 12px;
+    margin-left: 5px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .btn-small:hover {
+    background: #ff4c4c;
+  }
+</style>
+</head>
+<body>
+
+<header>Clevir Lima - Gerenciamento</header>
+
+<main>
+
+  <section style="margin-bottom: 25px;">
+    <h2>Dashboard</h2>
+    <div id="dashboard-stats" style="display: flex; gap: 20px; flex-wrap: wrap;">
+      <!-- indicadores serão inseridos aqui -->
+    </div>
+  </section>
+
+  <!-- Nova seção: Registrar Venda -->
+  <section style="margin-bottom: 25px;">
+    <h2>Registrar Venda</h2>
+    <form id="venda-form" style="background:#5c1515; padding:20px; border-radius:12px; box-shadow:0 0 15px #b30000aa;">
+      <label for="venda-produto">Produto</label>
+      <select id="venda-produto" required>
+        <option value="" disabled selected>Selecione o produto</option>
+        <!-- opções via JS -->
+      </select>
+
+      <label for="venda-quantidade">Quantidade Vendida</label>
+      <input type="number" id="venda-quantidade" min="1" value="1" required />
+
+      <button type="submit">Registrar Venda</button>
+    </form>
+    <div id="venda-message"></div>
+  </section>
+
+  <div id="search-bar">
+    <input type="search" id="search" placeholder="Buscar produto pelo nome ou código..." />
+  </div>
+
+  <div class="grid-2">
+    <section>
+      <h2 id="form-title">Cadastrar Produto</h2>
+      <form id="product-form">
+
+        <input type="hidden" id="produto-id" />
+
+        <label for="nome">Nome do Produto</label>
+        <input type="text" id="nome" required />
+
+        <label for="descricao">Descrição</label>
+        <textarea id="descricao" required></textarea>
+
+        <label for="precoCompra">Preço de Compra (R$)</label>
+        <input type="number" id="precoCompra" step="0.01" min="0" required />
+
+        <label for="precoVenda">Preço de Venda (R$)</label>
+        <input type="number" id="precoVenda" step="0.01" min="0" required />
+
+        <label for="codigo">Código (SKU)</label>
+        <input type="text" id="codigo" required />
+
+        <label for="estoque">Estoque Atual</label>
+        <input type="number" id="estoque" min="0" required />
+
+        <label for="imagem1">URL Imagem 1</label>
+        <input type="url" id="imagem1" placeholder="https://..." required />
+
+        <label for="imagem2">URL Imagem 2</label>
+        <input type="url" id="imagem2" placeholder="https://..." required />
+
+        <label for="imagem3">URL Imagem 3</label>
+        <input type="url" id="imagem3" placeholder="https://..." required />
+
+        <button type="submit" id="btn-submit">Cadastrar Produto</button>
+      </form>
+      <div id="message"></div>
+    </section>
+
+    <section>
+      <h2>Produtos Cadastrados</h2>
+      <table id="produtos-table" aria-label="Lista de produtos">
+        <thead>
+          <tr>
+            <th>Imagem</th>
+            <th>Nome</th>
+            <th>Código</th>
+            <th>Estoque</th>
+            <th>Preço Compra</th>
+            <th>Preço Venda</th>
+            <th>Margem %</th>
+            <th>Total Vendas</th>
+            <th>Repor?</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Produtos serão listados aqui -->
+        </tbody>
+      </table>
+      <button id="btn-montar-pedido" style="margin-top:15px; background:#b30000; color:#fff;">Montar Pedido</button>
+
+      <div id="pedido-area" style="margin-top:15px; display:none;">
+        <h3>Montar Pedido Interno</h3>
+        <ul id="pedido-produtos-list"></ul>
+        <button id="btn-finalizar-pedido" style="background:gold; color:#4b0c0c;">Finalizar Pedido</button>
+        <button id="btn-cancelar-pedido" style="background:#777; color:#eee; margin-left:10px;">Cancelar</button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+  // Config Firebase (use sua config)
+  const firebaseConfig = {
+    apiKey: "AIzaSyBehqlRiCiDniyPi3bjHtkH7q2-Px-KoZc",
+    authDomain: "cadastr-produtos-clevir.firebaseapp.com",
+    databaseURL: "https://cadastr-produtos-clevir-default-rtdb.firebaseio.com",
+    projectId: "cadastr-produtos-clevir",
+    storageBucket: "cadastr-produtos-clevir.appspot.com",
+    messagingSenderId: "1028296092810",
+    appId: "1:1028296092810:web:86859328b19c1fdf511173",
+    measurementId: "G-JGE4Q09NX8"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
+
+  // DOM Elements
+  const form = document.getElementById('product-form');
+  const message = document.getElementById('message');
+  const produtosTableBody = document.querySelector('#produtos-table tbody');
+  const btnMontarPedido = document.getElementById('btn-montar-pedido');
+  const pedidoArea = document.getElementById('pedido-area');
+  const pedidoProdutosList = document.getElementById('pedido-produtos-list');
+  const btnFinalizarPedido = document.getElementById('btn-finalizar-pedido');
+  const btnCancelarPedido = document.getElementById('btn-cancelar-pedido');
+  const searchInput = document.getElementById('search');
+  const formTitle = document.getElementById('form-title');
+  const btnSubmit = document.getElementById('btn-submit');
+
+  // Elementos do formulário de vendas
+  const vendaForm = document.getElementById('venda-form');
+  const vendaProdutoSelect = document.getElementById('venda-produto');
+  const vendaQuantidadeInput = document.getElementById('venda-quantidade');
+  const vendaMessage = document.getElementById('venda-message');
+
+  // Estado
+  let produtos = {};
+  let editandoId = null;
+  let pedido = [];
+
+  // Helper: calcula margem de lucro % arredondada
+  function calcularMargem(precoCompra, precoVenda) {
+    if (precoCompra <= 0) return 100;
+    return Math.round(((precoVenda - precoCompra) / precoCompra) * 100);
+  }
+
+  // Exibe mensagem status
+  function showMessage(text, type='success') {
+    message.textContent = text;
+    message.className = type === 'success' ? 'success' : 'error';
+  }
+
+  // Limpa mensagem
+  function clearMessage() {
+    message.textContent = '';
+    message.className = '';
+  }
+
+  // Preenche a tabela de produtos
+  function renderProdutos(filter = '') {
+    produtosTableBody.innerHTML = '';
+
+    const keys = Object.keys(produtos);
+
+    // Filtro simples: nome ou código incluindo termo (case insensitive)
+    const termo = filter.toLowerCase();
+
+    keys.forEach(key => {
+      const p = produtos[key];
+      if (p.nome.toLowerCase().includes(termo) || p.codigo.toLowerCase().includes(termo)) {
+        const margem = calcularMargem(p.precoCompra, p.precoVenda);
+        const estoqueClass = p.estoque <= 5 ? 'estoque-baixo' : 'estoque-ok';
+        const repor = p.estoque <= 5 ? 'SIM' : '—';
+
+        // Criar linha da tabela
+        const tr = document.createElement('tr');
+
+        tr.innerHTML = `
+          <td class="thumbs">
+            <img src="${p.imagem1}" alt="${p.nome} imagem 1" title="Imagem 1
+            class"produto-imagem"/>
+            <img src="${p.imagem2}" alt="${p.nome} imagem 2" title="Imagem 2" />
+            <img src="${p.imagem3}" alt="${p.nome} imagem 3" title="Imagem 3" />
+          </td>
+          <td>${p.nome}</td>
+          <td>${p.codigo}</td>
+          <td class="${estoqueClass}">${p.estoque}</td>
+          <td>R$ ${p.precoCompra.toFixed(2)}</td>
+          <td>R$ ${p.precoVenda.toFixed(2)}</td>
+          <td class="${margem < 20 ? 'margem-baixa' : ''}">${margem}%</td>
+          <td>${p.totalVendas || 0}</td>
+          <td style="text-align:center;">${repor}</td>
+          <td>
+            <button class="btn-small btn-editar" data-id="${key}" title="Editar"><i class="fa fa-pen"></i></button>
+            <button class="btn-small btn-excluir" data-id="${key}" title="Excluir"><i class="fa fa-trash"></i></button>
+            <button class="btn-small btn-add-pedido" data-id="${key}" title="Adicionar ao pedido"><i class="fa fa-cart-plus"></i></button>
+          </td>
+        `;
+        produtosTableBody.appendChild(tr);
+      }
+    });
+  }
+
+  // Preenche formulário para editar
+  function preencherFormulario(id) {
+    if (!produtos[id]) return;
+    editandoId = id;
+    const p = produtos[id];
+
+    formTitle.textContent = 'Editar Produto';
+    btnSubmit.textContent = 'Salvar Alterações';
+
+    document.getElementById('produto-id').value = id;
+    document.getElementById('nome').value = p.nome;
+    document.getElementById('descricao').value = p.descricao;
+    document.getElementById('precoCompra').value = p.precoCompra;
+    document.getElementById('precoVenda').value = p.precoVenda;
+    document.getElementById('codigo').value = p.codigo;
+    document.getElementById('estoque').value = p.estoque;
+    document.getElementById('imagem1').value = p.imagem1;
+    document.getElementById('imagem2').value = p.imagem2;
+    document.getElementById('imagem3').value = p.imagem3;
+    clearMessage();
+  }
+
+  // Limpa formulário
+  function limparFormulario() {
+    form.reset();
+    formTitle.textContent = 'Cadastrar Produto';
+    btnSubmit.textContent = 'Cadastrar Produto';
+    editandoId = null;
+    clearMessage();
+  }
+
+  // Salvar produto (novo ou editar)
+  async function salvarProduto(data) {
+    const produtosRef = ref(database, 'produtos');
+    if (editandoId) {
+      // Atualizar existente
+      const produtoRef = ref(database, `produtos/${editandoId}`);
+      await update(produtoRef, data);
+    } else {
+      // Novo produto
+      data.totalVendas = 0; // inicia vendas em zero
+      await push(produtosRef, data);
+    }
+  }
+
+  // Remover produto
+  async function removerProduto(id) {
+    const confirma = confirm('Confirma excluir este produto?');
+    if (!confirma) return;
+    const produtoRef = ref(database, `produtos/${id}`);
+    await remove(produtoRef);
+  }
+
+  // Atualiza total de vendas
+  async function aumentarTotalVendas(id, quantidade) {
+    if (!produtos[id]) return;
+    const atual = produtos[id].totalVendas || 0;
+    const produtoRef = ref(database, `produtos/${id}`);
+    await update(produtoRef, { totalVendas: atual + quantidade });
+  }
+
+  // Atualizar estoque
+  async function atualizarEstoque(id, novoEstoque) {
+    if (!produtos[id]) return;
+    const produtoRef = ref(database, `produtos/${id}`);
+    await update(produtoRef, { estoque: novoEstoque });
+  }
+
+  // Atualizar dashboard com indicadores
+  function atualizarDashboard() {
+    const dash = document.getElementById('dashboard-stats');
+    dash.innerHTML = '';
+
+    const totalProdutos = Object.keys(produtos).length;
+    let estoqueTotal = 0;
+    let produtosRepor = 0;
+    let vendasTotais = 0;
+    let faturamentoPrevisto = 0;
+
+    Object.values(produtos).forEach(p => {
+      estoqueTotal += p.estoque;
+      if (p.estoque <= 5) produtosRepor++;
+      vendasTotais += p.totalVendas || 0;
+      faturamentoPrevisto += (p.totalVendas || 0) * p.precoVenda;
+    });
+
+    dash.innerHTML = `
+      <div style="flex:1; background:#b30000cc; padding:15px; border-radius:12px; text-align:center;">
+        <h3>Total Produtos</h3>
+        <p style="font-size:28px; font-weight:700;">${totalProdutos}</p>
+      </div>
+      <div style="flex:1; background:#7a0000cc; padding:15px; border-radius:12px; text-align:center;">
+        <h3>Estoque Total</h3>
+        <p style="font-size:28px; font-weight:700;">${estoqueTotal}</p>
+      </div>
+      <div style="flex:1; background:#b35400cc; padding:15px; border-radius:12px; text-align:center;">
+        <h3>Produtos a Repor</h3>
+        <p style="font-size:28px; font-weight:700; color:#ffb347;">${produtosRepor}</p>
+      </div>
+      <div style="flex:1; background:#004400cc; padding:15px; border-radius:12px; text-align:center;">
+        <h3>Total Vendas</h3>
+        <p style="font-size:28px; font-weight:700; color:#7fff7f;">${vendasTotais}</p>
+      </div>
+      <div style="flex:1; background:#004466cc; padding:15px; border-radius:12px; text-align:center;">
+        <h3>Faturamento Previsto</h3>
+        <p style="font-size:28px; font-weight:700; color:#7fbfff;">
+  ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(faturamentoPrevisto)}
+</p>
+
+      </div>
+    `;
+
+    // Atualiza opções do select venda
+    atualizarOpcoesVenda();
+  }
+
+  // Atualiza opções do select para registrar venda
+  function atualizarOpcoesVenda() {
+    vendaProdutoSelect.innerHTML = '<option value="" disabled selected>Selecione o produto</option>';
+    Object.entries(produtos).forEach(([id, p]) => {
+      const option = document.createElement('option');
+      option.value = id;
+      option.textContent = `${p.nome} (Estoque: ${p.estoque})`;
+      vendaProdutoSelect.appendChild(option);
+    });
+  }
+
+  // Eventos
+
+  // Submeter form cadastro/edição produto
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    clearMessage();
+
+    const data = {
+      nome: document.getElementById('nome').value.trim(),
+      descricao: document.getElementById('descricao').value.trim(),
+      precoCompra: parseFloat(document.getElementById('precoCompra').value),
+      precoVenda: parseFloat(document.getElementById('precoVenda').value),
+      codigo: document.getElementById('codigo').value.trim(),
+      estoque: parseInt(document.getElementById('estoque').value),
+      imagem1: document.getElementById('imagem1').value.trim(),
+      imagem2: document.getElementById('imagem2').value.trim(),
+      imagem3: document.getElementById('imagem3').value.trim()
+    };
+
+    // Validação simples
+    if (!data.nome || !data.codigo || isNaN(data.precoCompra) || isNaN(data.precoVenda) || isNaN(data.estoque)) {
+      showMessage('Preencha todos os campos corretamente.', 'error');
+      return;
+    }
+
+    try {
+      await salvarProduto(data);
+      showMessage(editandoId ? 'Produto atualizado com sucesso!' : 'Produto cadastrado com sucesso!');
+      limparFormulario();
+    } catch (err) {
+      console.error(err);
+      showMessage('Erro ao salvar produto.', 'error');
+    }
+  });
+
+  // Eventos tabela produtos (delegação)
+  produtosTableBody.addEventListener('click', async e => {
+    const btnEditar = e.target.closest('.btn-editar');
+    const btnExcluir = e.target.closest('.btn-excluir');
+    const btnAddPedido = e.target.closest('.btn-add-pedido');
+
+    if (btnEditar) {
+      preencherFormulario(btnEditar.dataset.id);
+    } else if (btnExcluir) {
+      await removerProduto(btnExcluir.dataset.id);
+    } else if (btnAddPedido) {
+      adicionarProdutoPedido(btnAddPedido.dataset.id);
+    }
+  });
+
+  // Busca
+  searchInput.addEventListener('input', () => {
+    renderProdutos(searchInput.value);
+  });
+
+  // Funções para pedido interno
+  function atualizarListaPedido() {
+    pedidoProdutosList.innerHTML = '';
+    pedido.forEach(({ id, quantidade }) => {
+      const p = produtos[id];
+      if (!p) return;
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <span>${p.nome} — Quantidade: ${quantidade}</span>
+        <button data-id="${id}">Remover</button>
+      `;
+      pedidoProdutosList.appendChild(li);
+    });
+  }
+
+  // Adicionar produto ao pedido
+  function adicionarProdutoPedido(id) {
+    if (!produtos[id]) return;
+    const item = pedido.find(p => p.id === id);
+    if (item) {
+      item.quantidade++;
+    } else {
+      pedido.push({ id, quantidade: 1 });
+    }
+    atualizarListaPedido();
+  }
+
+  // Remover produto do pedido (delegação)
+  pedidoProdutosList.addEventListener('click', e => {
+    if (e.target.tagName === 'BUTTON') {
+      const id = e.target.dataset.id;
+      pedido = pedido.filter(p => p.id !== id);
+      atualizarListaPedido();
+    }
+  });
+
+  btnMontarPedido.addEventListener('click', () => {
+    if (Object.keys(produtos).length === 0) {
+      alert('Não há produtos cadastrados.');
+      return;
+    }
+  
